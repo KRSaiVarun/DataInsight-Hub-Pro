@@ -459,8 +459,8 @@ class DataInsightHub:
         # File upload for resume
         uploaded_resume = st.file_uploader(
             "Upload Resume",
-            type=['txt'],
-            help="Upload a text file containing the resume content"
+            type=['txt', 'pdf'],
+            help="Upload a text file or PDF containing the resume content"
         )
         
         if uploaded_resume is not None:
@@ -568,7 +568,7 @@ class DataInsightHub:
                 st.error(f"Error analyzing resume: {str(e)}")
         
         else:
-            st.info("👆 Please upload a resume file (text format) to begin analysis.")
+            st.info("👆 Please upload a resume file (text or PDF format) to begin analysis.")
 
     def render_ai_insights(self):
         """Render the AI insights page"""

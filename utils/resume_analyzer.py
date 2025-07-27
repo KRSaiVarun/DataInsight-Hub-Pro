@@ -5,6 +5,12 @@ import re
 from collections import Counter
 import io
 from typing import Dict, List, Optional
+try:
+    import PyPDF2
+    import pdfplumber
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
 
 class ResumeAnalyzer:
     """Analyzes resumes and extracts key information"""
@@ -52,11 +58,40 @@ class ResumeAnalyzer:
                 # Handle text files
                 return str(uploaded_file.read(), 'utf-8')
             elif file_extension == 'pdf':
-                # For PDF files, we'll return a placeholder since we don't have PDF parsing
-                st.warning("PDF parsing requires additional libraries. Please upload a text file version of the resume.")
-                return ""
+                if not PDF_AVAILABLE:
+                    st.error("PDF parsing libraries not available. Please upload a text file version of the resume.")
+                    return ""
+                
+                # Handle PDF files
+                try:
+                    # Reset file pointer
+                    uploaded_file.seek(0)
+                    
+                    # Try pdfplumber first (better text extraction)
+                    with pdfplumber.open(uploaded_file) as pdf:
+                        text = ""
+                        for page in pdf.pages:
+                            page_text = page.extract_text()
+                            if page_text:
+                                text += page_text + "\n"
+                    
+                    if text.strip():
+                        return text
+                    
+                    # Fallback to PyPDF2
+                    uploaded_file.seek(0)
+                    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                    text = ""
+                    for page in pdf_reader.pages:
+                        text += page.extract_text() + "\n"
+                    
+                    return text
+                    
+                except Exception as pdf_error:
+                    st.error(f"Error reading PDF: {str(pdf_error)}")
+                    return ""
             else:
-                st.error(f"Unsupported file format: {file_extension}")
+                st.error(f"Unsupported file format: {file_extension}. Supported formats: TXT, PDF")
                 return ""
                 
         except Exception as e:

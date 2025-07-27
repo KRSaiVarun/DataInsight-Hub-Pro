@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 from io import BytesIO
+import re
 
 class DataProcessor:
     """Handles data loading and preprocessing operations"""
@@ -63,15 +64,34 @@ class DataProcessor:
         Returns:
             pandas.DataFrame: Cleaned dataframe
         """
+        # Make a copy to avoid modifying the original
+        df = df.copy()
+        
         # Remove completely empty rows and columns
         df = df.dropna(how='all').dropna(axis=1, how='all')
         
-        # Strip whitespace from string columns
+        # Reset index to ensure clean index
+        df = df.reset_index(drop=True)
+        
+        # Strip whitespace from string columns and handle mixed types
         string_cols = df.select_dtypes(include=['object']).columns
         for col in string_cols:
-            df[col] = df[col].astype(str).str.strip()
-            # Replace 'nan' strings with actual NaN
-            df[col] = df[col].replace('nan', np.nan)
+            # Handle mixed types safely
+            try:
+                # Convert to string, handling NaN values
+                df[col] = df[col].astype(str).str.strip()
+                # Replace 'nan' and 'None' strings with actual NaN
+                df[col] = df[col].replace(['nan', 'None', '<NA>', 'null'], np.nan)
+                # Convert back empty strings to NaN
+                df[col] = df[col].replace('', np.nan)
+                # Remove any remaining problematic characters
+                df[col] = df[col].str.replace(r'[^\x00-\x7F]+', '', regex=True)
+            except Exception:
+                # If conversion fails, leave column as is
+                continue
+        
+        # Clean column names to avoid Arrow serialization issues
+        df.columns = [self._clean_column_name(col) for col in df.columns]
         
         # Attempt to convert date columns
         df = self.detect_and_convert_dates(df)
@@ -80,6 +100,26 @@ class DataProcessor:
         df = self.optimize_dtypes(df)
         
         return df
+    
+    def _clean_column_name(self, col_name):
+        """Clean column names to be compatible with Arrow"""
+        # Convert to string and clean
+        clean_name = str(col_name).strip()
+        # Remove or replace problematic characters
+        clean_name = re.sub(r'[^\w\s-]', '_', clean_name)
+        # Replace spaces with underscores
+        clean_name = re.sub(r'\s+', '_', clean_name)
+        # Remove multiple underscores
+        clean_name = re.sub(r'_+', '_', clean_name)
+        # Remove leading/trailing underscores
+        clean_name = clean_name.strip('_')
+        # Ensure it starts with a letter or underscore
+        if clean_name and not clean_name[0].isalpha() and clean_name[0] != '_':
+            clean_name = 'col_' + clean_name
+        # Fallback for empty names
+        if not clean_name:
+            clean_name = f'column_{hash(col_name) % 10000}'
+        return clean_name
     
     def detect_and_convert_dates(self, df):
         """
@@ -124,10 +164,10 @@ class DataProcessor:
                 numeric_col = pd.to_numeric(df[col], errors='coerce')
                 
                 # If more than 50% of values are numeric, convert
-                if numeric_col.count() / len(df) > 0.5:
+                if len(df) > 0 and numeric_col.count() / len(df) > 0.5:
                     df[col] = numeric_col
-            except:
-                pass
+            except Exception:
+                continue
         
         # Optimize integer columns
         for col in df.select_dtypes(include=['int64']).columns:
