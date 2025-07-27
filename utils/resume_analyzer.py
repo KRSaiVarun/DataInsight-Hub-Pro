@@ -289,9 +289,27 @@ class ResumeAnalyzer:
         
         return filtered_certs[:10]  # Limit to first 10 to avoid noise
     
+    def load_job_database(self):
+        """Load job database from uploaded Excel file"""
+        try:
+            import pandas as pd
+            # Load Excel file and fix header row
+            job_df = pd.read_excel("attached_assets/_1800+ Talent Acquisition Database _1753648527246.xlsx")
+            
+            # The first row contains actual column names, set it as header
+            if job_df.iloc[0, 1] == 'Job Title':
+                # Use the first row as column names and drop it
+                job_df.columns = job_df.iloc[0]
+                job_df = job_df.drop(job_df.index[0]).reset_index(drop=True)
+                
+            return job_df
+        except Exception as e:
+            st.warning(f"Could not load job database: {str(e)}. Using default database.")
+            return None
+    
     def get_suitable_jobs(self, analysis: Dict) -> List[Dict]:
         """
-        Get suitable job positions based on resume analysis
+        Get suitable job positions based on resume analysis using real job database
         
         Args:
             analysis (dict): Resume analysis results
@@ -299,7 +317,13 @@ class ResumeAnalyzer:
         Returns:
             list: List of suitable job positions
         """
-        # Job database with requirements
+        # Try to load real job database first
+        job_df = self.load_job_database()
+        
+        if job_df is not None:
+            return self._match_jobs_from_database(analysis, job_df)
+        
+        # Fallback to default job database
         job_database = [
             {
                 'title': 'Software Engineer',
@@ -459,6 +483,224 @@ class ResumeAnalyzer:
         
         # Return top 5 matches
         return suitable_jobs[:5]
+    
+    def _match_jobs_from_database(self, analysis: Dict, job_df) -> List[Dict]:
+        """
+        Match jobs from the loaded database based on resume analysis
+        
+        Args:
+            analysis (dict): Resume analysis results
+            job_df (DataFrame): Job database from Excel file
+            
+        Returns:
+            list: List of suitable job positions
+        """
+        # Get candidate's skills and experience
+        all_candidate_skills = []
+        for category_skills in analysis['technical_skills'].values():
+            all_candidate_skills.extend([skill.lower().strip() for skill in category_skills])
+        all_candidate_skills.extend([skill.lower().strip() for skill in analysis['soft_skills']])
+        
+        candidate_experience = analysis['summary_stats']['estimated_experience']
+        candidate_education = analysis['summary_stats']['education_level']
+        
+        # Education level mapping
+        education_levels = {
+            'PhD': 4, 'Phd': 4, 'Doctor': 4,
+            'Masters': 3, 'Master': 3, 'MBA': 3,
+            'Bachelors': 2, 'Bachelor': 2, 'Degree': 2,
+            'Associates': 1, 'Associate': 1,
+            'Certification': 0, 'Certificate': 0
+        }
+        
+        candidate_edu_level = education_levels.get(candidate_education, 0)
+        suitable_jobs = []
+        
+        # Try to identify relevant columns in the job database
+        df_columns = [str(col).lower() for col in job_df.columns]
+        
+        # Look for specific columns from the database structure
+        title_col = None
+        company_col = None
+        location_col = None
+        niche_col = None
+        
+        for i, col in enumerate(job_df.columns):
+            col_str = str(col).lower()
+            if 'job title' in col_str or col_str == 'job title':
+                title_col = col
+            elif 'company name' in col_str or col_str == 'company name':
+                company_col = col
+            elif 'location' in col_str:
+                location_col = col
+            elif 'niche' in col_str or 'industry' in col_str:
+                niche_col = col
+        
+        # Fallback to positional if column names not found
+        if title_col is None:
+            title_col = job_df.columns[1] if len(job_df.columns) > 1 else job_df.columns[0]
+        if company_col is None:
+            company_col = job_df.columns[3] if len(job_df.columns) > 3 else job_df.columns[0]
+        
+        # Process each job in the database
+        for idx, row in job_df.head(50).iterrows():  # Limit to first 50 jobs for performance
+            try:
+                job_title = str(row[title_col]).strip() if pd.notna(row[title_col]) else "Unknown Position"
+                company_name = str(row[company_col]).strip() if pd.notna(row[company_col]) else "Unknown Company"
+                
+                # Skip if essential info is missing
+                if job_title == "Unknown Position" or company_name == "Unknown Company":
+                    continue
+                
+                # Extract skills from job description or requirements columns
+                job_skills = []
+                for col in job_df.columns:
+                    if pd.notna(row[col]):
+                        text = str(row[col]).lower()
+                        # Look for common technical skills
+                        for skill in all_candidate_skills:
+                            if len(skill) > 2 and skill in text:
+                                job_skills.append(skill)
+                
+                # If no specific skills found, infer from job title
+                if not job_skills:
+                    job_skills = self._infer_skills_from_title(job_title)
+                
+                # Remove duplicates
+                job_skills = list(set(job_skills))
+                
+                # Calculate skill match
+                if job_skills:
+                    matched_skills = [skill for skill in job_skills if skill.lower() in [s.lower() for s in all_candidate_skills]]
+                    skill_match_percentage = (len(matched_skills) / len(job_skills)) * 100
+                else:
+                    matched_skills = []
+                    skill_match_percentage = 0
+                
+                # Extract experience requirement
+                experience_required = self._extract_experience_from_text(' '.join([str(row[col]) for col in job_df.columns if pd.notna(row[col])]))
+                
+                # Extract education requirement
+                education_required = self._extract_education_from_text(' '.join([str(row[col]) for col in job_df.columns if pd.notna(row[col])]))
+                
+                # Calculate match score
+                match_score = skill_match_percentage
+                
+                # Check requirements
+                experience_match = candidate_experience >= experience_required
+                required_edu_level = education_levels.get(education_required, 2)
+                education_match = candidate_edu_level >= required_edu_level
+                
+                # Bonus/penalty for requirements
+                if experience_match:
+                    match_score += 10
+                if education_match:
+                    match_score += 10
+                if not experience_match:
+                    match_score -= 15
+                if not education_match:
+                    match_score -= 10
+                
+                match_score = max(0, min(100, match_score))
+                
+                # Only include jobs with reasonable match
+                if match_score >= 25 or (skill_match_percentage >= 40 and experience_match):
+                    # Generate match reason
+                    match_reason = []
+                    if skill_match_percentage >= 70:
+                        match_reason.append("Strong skill alignment")
+                    elif skill_match_percentage >= 40:
+                        match_reason.append("Good skill match")
+                    else:
+                        match_reason.append("Partial skill match")
+                    
+                    if experience_match:
+                        match_reason.append("meets experience requirement")
+                    else:
+                        match_reason.append(f"needs {experience_required - candidate_experience} more years experience")
+                    
+                    if education_match:
+                        match_reason.append("meets education requirement")
+                    else:
+                        match_reason.append(f"consider {education_required} degree")
+                    
+                    # Extract additional info if available
+                    location = str(row[location_col]).strip() if location_col and pd.notna(row[location_col]) else "Location not specified"
+                    company_niche = str(row[niche_col]).strip() if niche_col and pd.notna(row[niche_col]) else "Industry not specified"
+                    salary_range = f"{company_niche} | {location}"
+                    
+                    suitable_jobs.append({
+                        'title': job_title,
+                        'company': company_name,
+                        'requirements': job_skills[:5],  # Limit to top 5 skills
+                        'experience_required': experience_required,
+                        'education_required': education_required,
+                        'salary_range': salary_range,
+                        'match_score': round(match_score, 1),
+                        'matched_skills': matched_skills,
+                        'missing_skills': [skill for skill in job_skills if skill not in [s.lower() for s in all_candidate_skills]],
+                        'match_reason': ', '.join(match_reason)
+                    })
+                    
+            except Exception as e:
+                continue  # Skip problematic rows
+        
+        # Sort by match score and return top matches
+        suitable_jobs.sort(key=lambda x: x['match_score'], reverse=True)
+        return suitable_jobs[:8]  # Return top 8 matches
+    
+    def _infer_skills_from_title(self, job_title: str) -> List[str]:
+        """Infer required skills from job title"""
+        title_lower = job_title.lower()
+        skills = []
+        
+        # Technical roles
+        if any(word in title_lower for word in ['software', 'developer', 'programmer']):
+            skills.extend(['Python', 'JavaScript', 'SQL', 'Git'])
+        if 'data' in title_lower and 'scientist' in title_lower:
+            skills.extend(['Python', 'Machine Learning', 'Statistics', 'SQL'])
+        if 'frontend' in title_lower or 'front-end' in title_lower:
+            skills.extend(['JavaScript', 'React', 'CSS', 'HTML'])
+        if 'backend' in title_lower or 'back-end' in title_lower:
+            skills.extend(['Python', 'Java', 'SQL', 'API'])
+        if 'devops' in title_lower:
+            skills.extend(['AWS', 'Docker', 'Kubernetes', 'Jenkins'])
+        if 'manager' in title_lower:
+            skills.extend(['Leadership', 'Project Management', 'Communication'])
+        
+        return skills
+    
+    def _extract_experience_from_text(self, text: str) -> int:
+        """Extract experience requirement from job text"""
+        import re
+        patterns = [
+            r'(\d+)\+?\s*years?\s*(?:of\s*)?experience',
+            r'(\d+)\+?\s*years?\s*minimum',
+            r'minimum\s*(\d+)\+?\s*years?',
+            r'(\d+)\+?\s*years?\s*required'
+        ]
+        
+        for pattern in patterns:
+            matches = re.findall(pattern, text.lower())
+            if matches:
+                return int(matches[0])
+        
+        return 2  # Default requirement
+    
+    def _extract_education_from_text(self, text: str) -> str:
+        """Extract education requirement from job text"""
+        text_lower = text.lower()
+        
+        if any(word in text_lower for word in ['phd', 'doctorate', 'doctoral']):
+            return 'PhD'
+        elif any(word in text_lower for word in ['masters', 'master', 'mba']):
+            return 'Masters'
+        elif any(word in text_lower for word in ['bachelors', 'bachelor', 'degree']):
+            return 'Bachelors'
+        elif any(word in text_lower for word in ['associates', 'associate']):
+            return 'Associates'
+        
+        return 'Bachelors'  # Default requirement
     
     def generate_skill_match_score(self, resume_skills: Dict, job_requirements: List[str]) -> Dict:
         """
