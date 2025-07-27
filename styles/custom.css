@@ -1,0 +1,382 @@
+/* DataInsightHub Custom Styles */
+
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap');
+
+/* Root variables for consistent theming */
+:root {
+    --primary-color: #FF4B4B;
+    --secondary-color: #0E1117;
+    --background-color: #FFFFFF;
+    --sidebar-color: #F0F2F6;
+    --success-color: #00CC88;
+    --text-color: #262730;
+    --border-color: #E0E0E0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Main application styling */
+.main .block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 1200px;
+}
+
+/* Header styling */
+h1, h2, h3 {
+    font-family: 'Source Sans Pro', sans-serif;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Sidebar styling */
+.css-1d391kg {
+    background-color: var(--sidebar-color);
+}
+
+.sidebar .sidebar-content {
+    background-color: var(--sidebar-color);
+    padding: 1rem;
+}
+
+/* Metric cards styling */
+div[data-testid="metric-container"] {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+div[data-testid="metric-container"] > div {
+    color: var(--text-color);
+}
+
+div[data-testid="metric-container"] label {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+
+div[data-testid="metric-container"] [data-testid="metric-value"] {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+/* Button styling */
+.stButton > button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.stButton > button:hover {
+    background-color: #E04545;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.stButton > button:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Success button variant */
+.stButton > button.success {
+    background-color: var(--success-color);
+}
+
+.stButton > button.success:hover {
+    background-color: #00B377;
+}
+
+/* Selectbox and input styling */
+.stSelectbox > div > div {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.stTextInput > div > div > input,
+.stNumberInput > div > div > input,
+.stTextArea > div > div > textarea {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: 'Roboto', sans-serif;
+    color: var(--text-color);
+}
+
+.stTextInput > div > div > input:focus,
+.stNumberInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(255, 75, 75, 0.2);
+}
+
+/* Multiselect styling */
+.stMultiSelect > div > div {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+/* Slider styling */
+.stSlider > div > div > div > div {
+    background-color: var(--primary-color);
+}
+
+/* Dataframe styling */
+.stDataFrame {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.stDataFrame > div {
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* Chart container styling */
+.js-plotly-plot {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    margin: 1rem 0;
+}
+
+/* Info/Success/Warning/Error message styling */
+.stAlert {
+    border-radius: 6px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 500;
+}
+
+.stAlert[data-baseweb="notification"] {
+    background-color: rgba(255, 75, 75, 0.1);
+    border-left: 4px solid var(--primary-color);
+}
+
+.stSuccess {
+    background-color: rgba(0, 204, 136, 0.1);
+    border-left: 4px solid var(--success-color);
+}
+
+.stInfo {
+    background-color: rgba(14, 17, 23, 0.05);
+    border-left: 4px solid var(--secondary-color);
+}
+
+.stWarning {
+    background-color: rgba(255, 165, 0, 0.1);
+    border-left: 4px solid #FFA500;
+}
+
+.stError {
+    background-color: rgba(255, 0, 0, 0.1);
+    border-left: 4px solid #FF0000;
+}
+
+/* Expander styling */
+.streamlit-expanderHeader {
+    background-color: var(--sidebar-color);
+    border-radius: 6px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.streamlit-expanderContent {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 1rem;
+}
+
+/* Tab styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background-color: var(--sidebar-color);
+    border-radius: 6px 6px 0 0;
+    color: var(--text-color);
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* File uploader styling */
+.stFileUploader {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--sidebar-color);
+    transition: all 0.2s ease;
+}
+
+.stFileUploader:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(255, 75, 75, 0.05);
+}
+
+.stFileUploader > div {
+    font-family: 'Source Sans Pro', sans-serif;
+    color: var(--text-color);
+}
+
+/* Progress bar styling */
+.stProgress > div > div > div > div {
+    background-color: var(--primary-color);
+}
+
+/* Checkbox styling */
+.stCheckbox > label {
+    font-family: 'Source Sans Pro', sans-serif;
+    color: var(--text-color);
+}
+
+.stCheckbox > label > span {
+    border-color: var(--border-color);
+}
+
+.stCheckbox > label > span[aria-checked="true"] {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Radio button styling */
+.stRadio > label {
+    font-family: 'Source Sans Pro', sans-serif;
+    color: var(--text-color);
+}
+
+/* Date input styling */
+.stDateInput > div > div > input {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: 'Roboto', sans-serif;
+    color: var(--text-color);
+}
+
+/* Loading spinner customization */
+.stSpinner > div {
+    border-color: var(--primary-color);
+}
+
+/* Custom utility classes */
+.metric-card {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    margin: 0.5rem 0;
+}
+
+.stat-highlight {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.section-divider {
+    border-bottom: 2px solid var(--border-color);
+    margin: 2rem 0;
+    padding-bottom: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    div[data-testid="metric-container"] [data-testid="metric-value"] {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Hide Streamlit menu and footer */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--sidebar-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
