@@ -9,6 +9,64 @@ class Filters:
     def __init__(self):
         pass
     
+    def apply_numeric_filter(self, df, column, operator, value):
+        """
+        Apply numeric filter to dataframe
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            column (str): Column name
+            operator (str): Comparison operator (>, <, >=, <=, ==, !=)
+            value (float): Filter value
+            
+        Returns:
+            pandas.DataFrame: Filtered dataframe
+        """
+        if column not in df.columns:
+            return df
+        
+        if operator == '>':
+            return df[df[column] > value]
+        elif operator == '<':
+            return df[df[column] < value]
+        elif operator == '>=':
+            return df[df[column] >= value]
+        elif operator == '<=':
+            return df[df[column] <= value]
+        elif operator == '==':
+            return df[df[column] == value]
+        elif operator == '!=':
+            return df[df[column] != value]
+        else:
+            return df
+    
+    def apply_text_filter(self, df, column, operator, value):
+        """
+        Apply text filter to dataframe
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            column (str): Column name
+            operator (str): Filter type (contains, equals, starts_with, ends_with)
+            value (str): Filter value
+            
+        Returns:
+            pandas.DataFrame: Filtered dataframe
+        """
+        if column not in df.columns:
+            return df
+        
+        if operator == 'contains':
+            return df[df[column].str.contains(value, na=False, case=False)]
+        elif operator == 'equals':
+            return df[df[column].str.lower() == value.lower()]
+        elif operator == 'starts_with':
+            return df[df[column].str.startswith(value, na=False)]
+        elif operator == 'ends_with':
+            return df[df[column].str.endswith(value, na=False)]
+        else:
+            return df
+    
     def create_advanced_filters(self, df):
         """
         Create advanced filtering interface

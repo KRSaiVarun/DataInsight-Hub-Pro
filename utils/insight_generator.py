@@ -9,6 +9,36 @@ class InsightGenerator:
     def __init__(self):
         pass
     
+    def generate_insights(self, df):
+        """
+        Generate insights from dataframe
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            
+        Returns:
+            list: List of insights
+        """
+        results = self.generate_comprehensive_insights(df)
+        all_insights = []
+        for category_insights in results.values():
+            if isinstance(category_insights, list):
+                all_insights.extend(category_insights)
+        return all_insights
+    
+    def generate_business_recommendations(self, df):
+        """
+        Generate business recommendations from dataframe
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            
+        Returns:
+            list: List of business recommendations
+        """
+        results = self.generate_comprehensive_insights(df)
+        return results.get('recommendations', [])
+    
     def generate_comprehensive_insights(self, df: pd.DataFrame, analysis_results: Dict = None) -> Dict[str, List[str]]:
         """
         Generate comprehensive insights from dataset analysis

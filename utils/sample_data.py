@@ -17,7 +17,7 @@ class SampleDataGenerator:
         # Date range
         start_date = datetime(2023, 1, 1)
         end_date = datetime(2024, 12, 31)
-        date_range = pd.date_range(start_date, end_date)
+        date_range = pd.date_range(start_date, end_date).tolist()
         
         # Generate data
         data = []

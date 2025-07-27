@@ -10,6 +10,54 @@ class Statistics:
     def __init__(self):
         pass
     
+    def get_descriptive_stats(self, df):
+        """
+        Get descriptive statistics for numeric columns
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            
+        Returns:
+            pandas.DataFrame: Descriptive statistics
+        """
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if not numeric_cols:
+            return pd.DataFrame()
+        
+        return df[numeric_cols].describe()
+    
+    def get_correlation_matrix(self, df):
+        """
+        Get correlation matrix for numeric columns
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            
+        Returns:
+            pandas.DataFrame: Correlation matrix
+        """
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if len(numeric_cols) < 2:
+            return pd.DataFrame()
+        
+        return df[numeric_cols].corr()
+    
+    def get_categorical_summary(self, df, column):
+        """
+        Get summary statistics for a categorical column
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            column (str): Column name
+            
+        Returns:
+            pandas.DataFrame: Categorical summary
+        """
+        if column not in df.columns:
+            return pd.DataFrame()
+        
+        return df[column].value_counts().to_frame('count')
+    
     def generate_comprehensive_stats(self, df):
         """
         Generate comprehensive statistics for all columns
@@ -48,8 +96,8 @@ class Statistics:
                         'Q1': series.quantile(0.25),
                         'Q3': series.quantile(0.75),
                         'IQR': series.quantile(0.75) - series.quantile(0.25),
-                        'Skewness': stats.skew(series),
-                        'Kurtosis': stats.kurtosis(series),
+                        'Skewness': float(stats.skew(series)),
+                        'Kurtosis': float(stats.kurtosis(series)),
                         'Outliers': self.count_outliers(series)
                     }
                     numeric_stats.append(stats_dict)
@@ -114,7 +162,7 @@ class Statistics:
             outliers = ((series < lower_bound) | (series > upper_bound)).sum()
         
         elif method == 'zscore':
-            z_scores = np.abs(stats.zscore(series))
+            z_scores = np.abs(stats.zscore(series.values))
             outliers = (z_scores > 3).sum()
         
         else:

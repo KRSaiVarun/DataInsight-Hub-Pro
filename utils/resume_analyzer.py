@@ -133,6 +133,18 @@ class ResumeAnalyzer:
         
         return analysis
     
+    def extract_technical_skills(self, text: str) -> Dict[str, List[str]]:
+        """
+        Public method to extract technical skills
+        
+        Args:
+            text (str): Text to analyze
+            
+        Returns:
+            Dict[str, List[str]]: Technical skills by category
+        """
+        return self._extract_technical_skills(text.lower())
+    
     def _extract_technical_skills(self, text: str) -> Dict[str, List[str]]:
         """Extract technical skills by category"""
         found_skills = {}
