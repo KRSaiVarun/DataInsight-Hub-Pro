@@ -68,6 +68,7 @@ class ResumeAnalyzer:
                     uploaded_file.seek(0)
                     
                     # Try pdfplumber first (better text extraction)
+                    import pdfplumber
                     with pdfplumber.open(uploaded_file) as pdf:
                         text = ""
                         for page in pdf.pages:
@@ -80,6 +81,7 @@ class ResumeAnalyzer:
                     
                     # Fallback to PyPDF2
                     uploaded_file.seek(0)
+                    import PyPDF2
                     pdf_reader = PyPDF2.PdfReader(uploaded_file)
                     text = ""
                     for page in pdf_reader.pages:
@@ -234,7 +236,7 @@ class ResumeAnalyzer:
     
     def _extract_contact_info(self, text: str) -> Dict[str, Optional[str]]:
         """Extract contact information"""
-        contact = {
+        contact: Dict[str, Optional[str]] = {
             'email': None,
             'phone': None,
             'linkedin': None,
@@ -286,6 +288,177 @@ class ResumeAnalyzer:
         filtered_certs = [cert for cert in certifications if len(cert.split()) <= 5 and len(cert) > 5]
         
         return filtered_certs[:10]  # Limit to first 10 to avoid noise
+    
+    def get_suitable_jobs(self, analysis: Dict) -> List[Dict]:
+        """
+        Get suitable job positions based on resume analysis
+        
+        Args:
+            analysis (dict): Resume analysis results
+            
+        Returns:
+            list: List of suitable job positions
+        """
+        # Job database with requirements
+        job_database = [
+            {
+                'title': 'Software Engineer',
+                'company': 'Tech Corp',
+                'requirements': ['Python', 'JavaScript', 'SQL', 'Git'],
+                'experience_required': 2,
+                'education_required': 'Bachelors',
+                'salary_range': '$70,000 - $95,000'
+            },
+            {
+                'title': 'Senior Software Engineer',
+                'company': 'Innovation Labs',
+                'requirements': ['Python', 'React', 'Node.js', 'AWS', 'Leadership'],
+                'experience_required': 5,
+                'education_required': 'Bachelors',
+                'salary_range': '$95,000 - $130,000'
+            },
+            {
+                'title': 'Data Scientist',
+                'company': 'Analytics Inc',
+                'requirements': ['Python', 'Machine Learning', 'SQL', 'TensorFlow', 'Statistics'],
+                'experience_required': 3,
+                'education_required': 'Masters',
+                'salary_range': '$85,000 - $120,000'
+            },
+            {
+                'title': 'Full Stack Developer',
+                'company': 'StartupXYZ',
+                'requirements': ['JavaScript', 'React', 'Node.js', 'MongoDB', 'CSS'],
+                'experience_required': 3,
+                'education_required': 'Bachelors',
+                'salary_range': '$75,000 - $100,000'
+            },
+            {
+                'title': 'DevOps Engineer',
+                'company': 'Cloud Solutions',
+                'requirements': ['AWS', 'Docker', 'Kubernetes', 'Jenkins', 'Python'],
+                'experience_required': 4,
+                'education_required': 'Bachelors',
+                'salary_range': '$90,000 - $125,000'
+            },
+            {
+                'title': 'Frontend Developer',
+                'company': 'Design Studio',
+                'requirements': ['JavaScript', 'React', 'CSS', 'HTML', 'UI/UX'],
+                'experience_required': 2,
+                'education_required': 'Bachelors',
+                'salary_range': '$65,000 - $85,000'
+            },
+            {
+                'title': 'Product Manager',
+                'company': 'Product Co',
+                'requirements': ['Leadership', 'Project Management', 'Analytics', 'Communication'],
+                'experience_required': 5,
+                'education_required': 'Bachelors',
+                'salary_range': '$100,000 - $140,000'
+            },
+            {
+                'title': 'Backend Developer',
+                'company': 'Server Solutions',
+                'requirements': ['Python', 'Java', 'SQL', 'REST API', 'Database Design'],
+                'experience_required': 3,
+                'education_required': 'Bachelors',
+                'salary_range': '$80,000 - $110,000'
+            }
+        ]
+        
+        # Get candidate's skills and experience
+        all_candidate_skills = []
+        for category_skills in analysis['technical_skills'].values():
+            all_candidate_skills.extend([skill.lower() for skill in category_skills])
+        all_candidate_skills.extend([skill.lower() for skill in analysis['soft_skills']])
+        
+        candidate_experience = analysis['summary_stats']['estimated_experience']
+        candidate_education = analysis['summary_stats']['education_level']
+        
+        # Education level mapping
+        education_levels = {
+            'PhD': 4,
+            'Masters': 3,
+            'Bachelors': 2,
+            'Associates': 1,
+            'Certification': 0
+        }
+        
+        candidate_edu_level = education_levels.get(candidate_education, 0)
+        suitable_jobs = []
+        
+        for job in job_database:
+            # Calculate skill match
+            job_requirements_lower = [req.lower() for req in job['requirements']]
+            matched_skills = [skill for skill in job_requirements_lower if skill in all_candidate_skills]
+            missing_skills = [skill for skill in job_requirements_lower if skill not in all_candidate_skills]
+            
+            skill_match_percentage = (len(matched_skills) / len(job_requirements_lower)) * 100
+            
+            # Check experience requirement
+            experience_match = candidate_experience >= job['experience_required']
+            
+            # Check education requirement
+            required_edu_level = education_levels.get(job['education_required'], 2)
+            education_match = candidate_edu_level >= required_edu_level
+            
+            # Calculate overall match score
+            match_score = skill_match_percentage
+            
+            # Bonus points for meeting experience and education requirements
+            if experience_match:
+                match_score += 10
+            if education_match:
+                match_score += 10
+                
+            # Penalty for not meeting basic requirements
+            if not experience_match:
+                match_score -= 15
+            if not education_match:
+                match_score -= 20
+            
+            match_score = max(0, min(100, match_score))  # Keep between 0-100
+            
+            # Only include jobs with reasonable match (at least 30% or meets basic requirements)
+            if match_score >= 30 or (skill_match_percentage >= 50 and (experience_match or education_match)):
+                # Generate match reason
+                match_reason = []
+                if skill_match_percentage >= 70:
+                    match_reason.append("Strong skill alignment")
+                elif skill_match_percentage >= 50:
+                    match_reason.append("Good skill match")
+                else:
+                    match_reason.append("Partial skill match")
+                
+                if experience_match:
+                    match_reason.append("meets experience requirement")
+                else:
+                    match_reason.append(f"needs {job['experience_required'] - candidate_experience} more years experience")
+                
+                if education_match:
+                    match_reason.append("meets education requirement")
+                else:
+                    match_reason.append(f"consider pursuing {job['education_required']} degree")
+                
+                suitable_jobs.append({
+                    'title': job['title'],
+                    'company': job['company'],
+                    'requirements': job['requirements'],
+                    'experience_required': job['experience_required'],
+                    'education_required': job['education_required'],
+                    'salary_range': job['salary_range'],
+                    'match_score': round(match_score, 1),
+                    'matched_skills': matched_skills,
+                    'missing_skills': missing_skills,
+                    'match_reason': ', '.join(match_reason)
+                })
+        
+        # Sort by match score (descending)
+        suitable_jobs.sort(key=lambda x: x['match_score'], reverse=True)
+        
+        # Return top 5 matches
+        return suitable_jobs[:5]
     
     def generate_skill_match_score(self, resume_skills: Dict, job_requirements: List[str]) -> Dict:
         """

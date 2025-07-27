@@ -83,20 +83,20 @@ class DataInsightHub:
                 type=['csv', 'xlsx', 'xls'],
                 help="Upload CSV or Excel files for analysis"
             )
-        
-        if uploaded_file is not None:
-            try:
-                with st.spinner("Loading data..."):
-                    st.session_state.data = self.data_processor.load_file(uploaded_file)
-                    st.session_state.filtered_data = st.session_state.data.copy()
-                st.sidebar.success("✅ Data loaded successfully!")
-                
-                # Show basic data info
-                st.sidebar.info(f"**Rows:** {len(st.session_state.data)}\n**Columns:** {len(st.session_state.data.columns)}")
-                
-            except Exception as e:
-                st.sidebar.error(f"❌ Error loading file: {str(e)}")
-                return
+            
+            if uploaded_file is not None:
+                try:
+                    with st.spinner("Loading data..."):
+                        st.session_state.data = self.data_processor.load_file(uploaded_file)
+                        st.session_state.filtered_data = st.session_state.data.copy()
+                    st.sidebar.success("✅ Data loaded successfully!")
+                    
+                    # Show basic data info
+                    st.sidebar.info(f"**Rows:** {len(st.session_state.data)}\n**Columns:** {len(st.session_state.data.columns)}")
+                    
+                except Exception as e:
+                    st.sidebar.error(f"❌ Error loading file: {str(e)}")
+                    return
         
         if st.session_state.data is not None:
             st.sidebar.markdown("---")
@@ -474,7 +474,7 @@ class DataInsightHub:
                         analysis = self.resume_analyzer.analyze_resume(resume_text)
                     
                     # Display results in tabs
-                    analysis_tabs = st.tabs(["📊 Summary", "🔧 Technical Skills", "💼 Soft Skills", "🎓 Education", "📞 Contact Info"])
+                    analysis_tabs = st.tabs(["📊 Summary", "🔧 Technical Skills", "💼 Soft Skills", "🎓 Education", "📞 Contact Info", "🏢 Job Matching"])
                     
                     with analysis_tabs[0]:
                         st.subheader("📊 Resume Summary")
@@ -560,6 +560,46 @@ class DataInsightHub:
                         
                         if not contact_found:
                             st.info("No contact information detected.")
+                    
+                    with analysis_tabs[5]:
+                        st.subheader("🏢 Job & Company Matching")
+                        
+                        # Get suitable jobs based on skills and experience
+                        suitable_jobs = self.resume_analyzer.get_suitable_jobs(analysis)
+                        
+                        if suitable_jobs:
+                            st.markdown("**🎯 Recommended Positions Based on Your Skills:**")
+                            
+                            for job in suitable_jobs:
+                                with st.expander(f"**{job['title']}** at {job['company']} - Match: {job['match_score']}%"):
+                                    col1, col2 = st.columns(2)
+                                    
+                                    with col1:
+                                        st.markdown("**Requirements:**")
+                                        for req in job['requirements']:
+                                            status = "✅" if req.lower() in [skill.lower() for skills in analysis['technical_skills'].values() for skill in skills] + [skill.lower() for skill in analysis['soft_skills']] else "❌"
+                                            st.markdown(f"{status} {req}")
+                                    
+                                    with col2:
+                                        st.markdown(f"**Experience Required:** {job['experience_required']} years")
+                                        st.markdown(f"**Education:** {job['education_required']}")
+                                        st.markdown(f"**Match Reason:** {job['match_reason']}")
+                                        
+                                        if job['missing_skills']:
+                                            st.markdown("**Skills to Develop:**")
+                                            for skill in job['missing_skills']:
+                                                st.markdown(f"- {skill}")
+                                        
+                                        st.markdown(f"**Salary Range:** {job['salary_range']}")
+                        else:
+                            st.info("Based on the current skills analysis, we recommend developing more specific technical skills to match available positions.")
+                            
+                            # Suggest skill development
+                            st.markdown("**💡 Skill Development Suggestions:**")
+                            st.markdown("- Add more specific programming languages or frameworks")
+                            st.markdown("- Include project management or leadership experience")
+                            st.markdown("- Consider obtaining industry certifications")
+                            st.markdown("- Add quantifiable achievements and results")
                 
                 else:
                     st.warning("No text content found in the uploaded file.")
