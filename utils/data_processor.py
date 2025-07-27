@@ -78,17 +78,25 @@ class DataProcessor:
         for col in string_cols:
             # Handle mixed types safely
             try:
+                # Handle complex objects and lists first
+                if any(isinstance(x, (list, dict, tuple, set)) for x in df[col].dropna() if x is not None):
+                    # Convert complex objects to strings
+                    df[col] = df[col].apply(lambda x: str(x) if x is not None else np.nan)
+                
                 # Convert to string, handling NaN values
                 df[col] = df[col].astype(str).str.strip()
                 # Replace 'nan' and 'None' strings with actual NaN
-                df[col] = df[col].replace(['nan', 'None', '<NA>', 'null'], np.nan)
+                df[col] = df[col].replace(['nan', 'None', '<NA>', 'null', 'NaT'], np.nan)
                 # Convert back empty strings to NaN
                 df[col] = df[col].replace('', np.nan)
-                # Remove any remaining problematic characters
+                # Remove any remaining problematic characters for Arrow compatibility
                 df[col] = df[col].str.replace(r'[^\x00-\x7F]+', '', regex=True)
-            except Exception:
-                # If conversion fails, leave column as is
-                continue
+                # Handle any remaining problematic values
+                df[col] = df[col].apply(lambda x: str(x)[:1000] if isinstance(x, str) and len(str(x)) > 1000 else x)
+            except Exception as e:
+                # If conversion fails, create a clean string column
+                st.warning(f"Cleaning column '{col}' due to mixed data types: {str(e)}")
+                df[col] = df[col].apply(lambda x: str(x) if x is not None else np.nan)
         
         # Clean column names to avoid Arrow serialization issues
         df.columns = [self._clean_column_name(col) for col in df.columns]
@@ -98,6 +106,52 @@ class DataProcessor:
         
         # Optimize data types
         df = self.optimize_dtypes(df)
+        
+        # Final Arrow compatibility check and fix
+        df = self._ensure_arrow_compatibility(df)
+        
+        return df
+    
+    def _ensure_arrow_compatibility(self, df):
+        """
+        Final check to ensure DataFrame is compatible with Arrow serialization
+        
+        Args:
+            df (pandas.DataFrame): Input dataframe
+            
+        Returns:
+            pandas.DataFrame: Arrow-compatible dataframe
+        """
+        df = df.copy()
+        
+        # Handle any remaining problematic columns
+        for col in df.columns:
+            try:
+                # Test if column can be converted to Arrow
+                import pyarrow as pa
+                pa.array(df[col].dropna().head(100))
+            except Exception as e:
+                # If Arrow conversion fails, convert to safe string type
+                st.warning(f"Converting column '{col}' to string for compatibility: {str(e)}")
+                df[col] = df[col].astype(str).replace('nan', np.nan)
+        
+        # Ensure all column names are valid identifiers
+        original_columns = df.columns.tolist()
+        df.columns = [self._clean_column_name(col) for col in df.columns]
+        
+        # Check for duplicate column names after cleaning
+        if len(set(df.columns)) != len(df.columns):
+            # Handle duplicate column names
+            seen = {}
+            new_columns = []
+            for col in df.columns:
+                if col in seen:
+                    seen[col] += 1
+                    new_columns.append(f"{col}_{seen[col]}")
+                else:
+                    seen[col] = 0
+                    new_columns.append(col)
+            df.columns = new_columns
         
         return df
     
@@ -149,7 +203,7 @@ class DataProcessor:
     
     def optimize_dtypes(self, df):
         """
-        Optimize data types to reduce memory usage
+        Optimize data types to reduce memory usage and ensure Arrow compatibility
         
         Args:
             df (pandas.DataFrame): Input dataframe
