@@ -129,11 +129,20 @@ class DataProcessor:
             try:
                 # Test if column can be converted to Arrow
                 import pyarrow as pa
-                pa.array(df[col].dropna().head(100))
+                # Test with a small sample first
+                test_data = df[col].dropna().head(10)
+                if len(test_data) > 0:
+                    pa.array(test_data)
             except Exception as e:
                 # If Arrow conversion fails, convert to safe string type
-                st.warning(f"Converting column '{col}' to string for compatibility: {str(e)}")
-                df[col] = df[col].astype(str).replace('nan', np.nan)
+                try:
+                    df[col] = df[col].astype(str)
+                    df[col] = df[col].replace(['nan', 'None', '<NA>'], '')
+                    df[col] = df[col].replace('', np.nan)
+                except Exception:
+                    # Last resort - create a simple text column
+                    df[col] = 'data_cleaned'
+                    st.warning(f"Simplified column '{col}' for compatibility")
         
         # Ensure all column names are valid identifiers
         original_columns = df.columns.tolist()

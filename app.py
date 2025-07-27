@@ -9,20 +9,10 @@ from utils.resume_analyzer import ResumeAnalyzer
 from utils.insight_generator import InsightGenerator
 from utils.sample_data import SampleDataGenerator
 
-# Page configuration
-st.set_page_config(
-    page_title="DataInsightHub",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # Load custom CSS
 def load_css():
     with open("styles/custom.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-load_css()
 
 class DataInsightHub:
     def __init__(self):
@@ -693,5 +683,17 @@ class DataInsightHub:
 
 # Run the application
 if __name__ == "__main__":
+    # Page configuration
+    st.set_page_config(
+        page_title="DataInsightHub",
+        page_icon="📊",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+    
+    # Load custom CSS
+    load_css()
+    
+    # Initialize and run the app
     app = DataInsightHub()
     app.run()
