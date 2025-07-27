@@ -2,7 +2,15 @@
 
 ## Overview
 
-DataInsightHub is a comprehensive data analysis and visualization web application built with Streamlit. It provides an intuitive interface for uploading, processing, analyzing, and visualizing data through interactive dashboards. The application is designed to handle CSV and Excel files, offering advanced filtering capabilities, statistical analysis, and rich visualizations powered by Plotly.
+DataInsightHub is a comprehensive data analysis and visualization web application built with Streamlit. It provides an intuitive interface for uploading, processing, analyzing, and visualizing data through interactive dashboards. The application is designed to handle CSV and Excel files, offering advanced filtering capabilities, statistical analysis, rich visualizations powered by Plotly, resume analysis capabilities, and AI-powered insights generation.
+
+## Recent Updates (July 2025)
+
+- ✅ Enhanced Resume Analyzer module with skill extraction and job matching
+- ✅ Added AI Insights Generator for automated data interpretation
+- ✅ Improved dark theme styling and responsive design
+- ✅ Fixed data processing issues with mixed data types
+- ✅ Added comprehensive business intelligence features
 
 ## User Preferences
 
@@ -58,6 +66,18 @@ Preferred communication style: Simple, everyday language.
 - **Design System**: CSS variables for consistent color scheme
 - **Typography**: Google Fonts integration (Source Sans Pro, Roboto)
 - **Layout**: Responsive design with proper spacing and shadows
+
+### 6. Resume Analyzer (`utils/resume_analyzer.py`)
+**Purpose**: Analyzes resumes and extracts key information for HR processes
+- **Problem Addressed**: Need for automated resume screening and skill extraction
+- **Solution**: Pattern matching and NLP techniques for information extraction
+- **Features**: Technical skill detection, soft skill identification, education parsing, contact extraction, job requirement matching
+
+### 7. AI Insights Generator (`utils/insight_generator.py`)
+**Purpose**: Generates automated insights and business recommendations from data
+- **Problem Addressed**: Need for automated data interpretation and actionable insights
+- **Solution**: Rule-based analysis engine with statistical pattern detection
+- **Features**: Data quality assessment, statistical insights, pattern identification, business recommendations
 
 ## Data Flow
 

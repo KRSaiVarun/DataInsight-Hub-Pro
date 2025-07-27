@@ -3,16 +3,21 @@
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap');
 
-/* Root variables for consistent theming */
+/* Root variables for dark theme */
 :root {
     --primary-color: #FF4B4B;
     --secondary-color: #0E1117;
-    --background-color: #FFFFFF;
-    --sidebar-color: #F0F2F6;
+    --background-color: #0E1117;
+    --sidebar-color: #262730;
     --success-color: #00CC88;
-    --text-color: #262730;
-    --border-color: #E0E0E0;
-    --shadow-color: rgba(0, 0, 0, 0.1);
+    --text-color: #FAFAFA;
+    --border-color: #404040;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --accent-color: #FF6B6B;
+    --warning-color: #FFA500;
+    --info-color: #4A90E2;
+    --card-background: #1A1D23;
+    --hover-color: #2A2D33;
 }
 
 /* Main application styling */
@@ -60,7 +65,7 @@ h3 {
 
 /* Metric cards styling */
 div[data-testid="metric-container"] {
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border: 1px solid var(--border-color);
     padding: 1rem;
     border-radius: 8px;
@@ -125,15 +130,16 @@ div[data-testid="metric-container"] [data-testid="metric-value"] {
 
 /* Selectbox and input styling */
 .stSelectbox > div > div {
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 6px;
+    color: var(--text-color);
 }
 
 .stTextInput > div > div > input,
 .stNumberInput > div > div > input,
 .stTextArea > div > div > textarea {
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-family: 'Roboto', sans-serif;
@@ -149,9 +155,10 @@ div[data-testid="metric-container"] [data-testid="metric-value"] {
 
 /* Multiselect styling */
 .stMultiSelect > div > div {
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 6px;
+    color: var(--text-color);
 }
 
 /* Slider styling */
@@ -219,7 +226,7 @@ div[data-testid="metric-container"] [data-testid="metric-value"] {
 }
 
 .streamlit-expanderContent {
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border: 1px solid var(--border-color);
     border-top: none;
     border-radius: 0 0 6px 6px;
@@ -293,7 +300,7 @@ div[data-testid="metric-container"] [data-testid="metric-value"] {
 
 /* Date input styling */
 .stDateInput > div > div > input {
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-family: 'Roboto', sans-serif;
@@ -307,7 +314,7 @@ div[data-testid="metric-container"] [data-testid="metric-value"] {
 
 /* Custom utility classes */
 .metric-card {
-    background: var(--background-color);
+    background: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1.5rem;
@@ -362,6 +369,56 @@ div[data-testid="metric-container"] [data-testid="metric-value"] {
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
+
+/* Enhanced component styling */
+.resume-skill-tag {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin: 0.1rem;
+    font-weight: 500;
+}
+
+.insight-card {
+    background: linear-gradient(135deg, var(--background-color) 0%, var(--sidebar-color) 100%);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.priority-high {
+    border-left-color: var(--warning-color);
+}
+
+.priority-medium {
+    border-left-color: var(--info-color);
+}
+
+.priority-low {
+    border-left-color: var(--success-color);
+}
+
+/* Loading animation */
+.loading-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

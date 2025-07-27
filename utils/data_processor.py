@@ -124,7 +124,7 @@ class DataProcessor:
                 numeric_col = pd.to_numeric(df[col], errors='coerce')
                 
                 # If more than 50% of values are numeric, convert
-                if numeric_col.notna().sum() / len(df) > 0.5:
+                if numeric_col.count() / len(df) > 0.5:
                     df[col] = numeric_col
             except:
                 pass
