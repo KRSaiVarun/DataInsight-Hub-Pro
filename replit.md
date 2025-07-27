@@ -8,7 +8,7 @@ DataInsightHub is a comprehensive data analysis and visualization web applicatio
 
 - ✅ Enhanced Resume Analyzer module with skill extraction and job matching
 - ✅ Added AI Insights Generator for automated data interpretation  
-- ✅ Completely redesigned UI with modern light theme and premium styling
+- ✅ Completely redesigned UI with modern dark theme and premium styling with animations
 - ✅ Fixed all backend type checking issues and data processing errors
 - ✅ Integrated real job database with 1800+ positions for accurate matching
 - ✅ Enhanced visual design with gradients, animations, and interactive elements
