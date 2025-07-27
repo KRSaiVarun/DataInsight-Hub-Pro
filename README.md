@@ -1,4 +1,4 @@
-# 📊 DataInsightHub
+# 📊 DataInsightHubPro
 
 **DataInsightHub** is a powerful and interactive data analytics platform built with [Streamlit](https://streamlit.io/). It empowers users to effortlessly explore, visualize, and derive insights from structured datasets. Whether you're a data analyst, student, business professional, or HR recruiter, DataInsightHub offers a seamless experience for making data-driven decisions.
 
