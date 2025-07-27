@@ -297,10 +297,10 @@ class ResumeAnalyzer:
             job_df = pd.read_excel("attached_assets/_1800+ Talent Acquisition Database _1753648527246.xlsx")
             
             # The first row contains actual column names, set it as header
-            if job_df.iloc[0, 1] == 'Job Title':
+            if len(job_df) > 0 and len(job_df.columns) > 1 and str(job_df.iloc[0, 1]) == 'Job Title':
                 # Use the first row as column names and drop it
                 job_df.columns = job_df.iloc[0]
-                job_df = job_df.drop(job_df.index[0]).reset_index(drop=True)
+                job_df = job_df.drop(index=0).reset_index(drop=True)
                 
             return job_df
         except Exception as e:

@@ -227,8 +227,11 @@ class DataProcessor:
                 numeric_col = pd.to_numeric(df[col], errors='coerce')
                 
                 # If more than 50% of values are numeric, convert
-                if len(df) > 0 and numeric_col.count() / len(df) > 0.5:
-                    df[col] = numeric_col
+                if len(df) > 0:
+                    valid_mask = ~pd.isna(numeric_col)
+                    valid_count = np.sum(valid_mask)
+                    if valid_count / len(df) > 0.5:
+                        df[col] = numeric_col
             except Exception:
                 continue
         
