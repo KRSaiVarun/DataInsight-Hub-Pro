@@ -1,0 +1,184 @@
+Add Advanced Excel Workspace to DataInsightHubPro
+
+Build a new module called Excel Workspace for the Streamlit-based DataInsightHubPro application.
+
+Requirements:
+
+1. Spreadsheet Interface
+Display uploaded CSV/Excel files in an editable spreadsheet grid.
+Support:
+Add/Delete rows
+Add/Delete columns
+Rename columns
+Drag-fill cells
+Copy/Paste data
+Multi-cell selection
+Undo/Redo operations
+2. Excel Formula Engine
+
+Implement Excel-like formulas:
+
+Math
+
+SUM()
+AVERAGE()
+MIN()
+MAX()
+COUNT()
+ROUND()
+ABS()
+POWER()
+SQRT()
+
+Logical
+
+IF()
+AND()
+OR()
+NOT()
+
+Text
+
+CONCAT()
+LEFT()
+RIGHT()
+MID()
+LEN()
+UPPER()
+LOWER()
+TRIM()
+
+Lookup
+
+VLOOKUP()
+HLOOKUP()
+XLOOKUP()
+INDEX()
+MATCH()
+
+Date Functions
+
+TODAY()
+NOW()
+YEAR()
+MONTH()
+DAY()
+DATEDIF()
+3. Excel Shortcuts
+
+Implement common shortcuts:
+
+Ctrl + C → Copy
+Ctrl + V → Paste
+Ctrl + X → Cut
+Ctrl + Z → Undo
+Ctrl + Y → Redo
+Ctrl + F → Find
+Ctrl + H → Replace
+Ctrl + A → Select All
+Delete → Clear Cells
+Ctrl + S → Save Sheet
+4. Data Cleaning Tools
+
+Add one-click tools:
+
+Remove duplicates
+Fill missing values
+Replace values
+Trim spaces
+Convert text to number
+Convert date formats
+Split columns
+Merge columns
+Find outliers
+5. Excel Analytics Features
+
+Add:
+
+Pivot Tables
+Group By Analysis
+Running Totals
+Ranking
+Percentage Contribution
+Conditional Aggregations
+Correlation Analysis
+Trend Analysis
+6. Conditional Formatting
+
+Support:
+
+Color scales
+Data bars
+Icon sets
+Highlight duplicates
+Highlight blanks
+Highlight top/bottom values
+Custom formula-based formatting
+7. Filtering & Sorting
+
+Provide:
+
+Multi-column sorting
+Advanced filters
+Search within columns
+Filter by date ranges
+Filter by numeric ranges
+Custom filter expressions
+8. Excel Charts
+
+Generate charts directly from selected cells:
+
+Bar
+Line
+Pie
+Area
+Scatter
+Histogram
+Heatmap
+Box Plot
+Waterfall
+Funnel
+9. Sheet Management
+
+Support:
+
+Multiple sheets
+Duplicate sheet
+Rename sheet
+Delete sheet
+Move sheet
+Import/Export XLSX
+10. AI Excel Assistant
+
+Add a natural language assistant:
+
+Examples:
+
+"Calculate monthly sales growth"
+"Create a pivot table by department"
+"Find duplicate employee IDs"
+"Show top 10 customers by revenue"
+"Generate a profit margin chart"
+
+The assistant should automatically execute spreadsheet operations and generate formulas when needed.
+
+11. Export Features
+
+Allow export to:
+
+XLSX
+CSV
+PDF
+PNG charts
+12. Recommended Libraries
+
+Use:
+
+pandas
+openpyxl
+xlsxwriter
+streamlit-aggrid
+plotly
+numpy
+
+Design the UI to feel similar to Microsoft Excel while remaining lightweight and responsive inside Streamlit.

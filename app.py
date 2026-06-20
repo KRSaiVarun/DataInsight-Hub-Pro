@@ -8,6 +8,7 @@ from utils.filters import Filters
 from utils.resume_analyzer import ResumeAnalyzer
 from utils.insight_generator import InsightGenerator
 from utils.sample_data import SampleDataGenerator
+from utils.excel_workspace import ExcelWorkspace
 
 # Load custom CSS
 def load_css():
@@ -23,6 +24,7 @@ class DataInsightHub:
         self.resume_analyzer = ResumeAnalyzer()
         self.insight_generator = InsightGenerator()
         self.sample_data_generator = SampleDataGenerator()
+        self.excel_workspace = ExcelWorkspace()
         
         # Initialize session state
         if 'data' not in st.session_state:
@@ -88,6 +90,12 @@ class DataInsightHub:
                     st.sidebar.error(f"❌ Error loading file: {str(e)}")
                     return
         
+        # Excel Workspace is always accessible
+        st.sidebar.markdown("---")
+        if st.sidebar.button("🗂️ Open Excel Workspace", use_container_width=True):
+            st.session_state.analysis_type = "Excel Workspace"
+            st.rerun()
+
         if st.session_state.data is not None:
             st.sidebar.markdown("---")
             
@@ -99,6 +107,7 @@ class DataInsightHub:
                 "Data Visualization",
                 "Correlation Analysis",
                 "Data Filtering",
+                "Excel Workspace",
                 "Resume Analyzer",
                 "AI Insights"
             ]
@@ -674,6 +683,10 @@ class DataInsightHub:
             self.render_correlation_analysis()
         elif st.session_state.analysis_type == "Data Filtering":
             self.render_data_filtering()
+        elif st.session_state.analysis_type == "Excel Workspace":
+            self.excel_workspace.render(
+                uploaded_df=st.session_state.data if st.session_state.data is not None else None
+            )
         elif st.session_state.analysis_type == "Resume Analyzer":
             self.render_resume_analyzer()
         elif st.session_state.analysis_type == "AI Insights":
